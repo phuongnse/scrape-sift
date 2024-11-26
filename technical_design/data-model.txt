@@ -1,0 +1,97 @@
+ClerkUser [color: black] {
+  id string pk
+}
+
+UserBalance [color: green] {
+  userId string pk
+  credits int
+}
+
+UserPurchase [color: blue] {
+  id string pk
+  userId string
+  stripeId string
+  description string
+  amount int
+  currency string
+  date timestamp
+}
+
+Credential [color: yellow] {
+  id string pk
+  userId string
+  name string
+  value string
+  createdAt timestamp
+}
+
+Workflow [color: aqua] {
+  userId string
+  name string
+  description string
+  definition string
+  executionPlan string
+  cron string
+  status string
+  id string pk
+  creditsCost int
+  lastRunAt timestamp
+  lastRunId string
+  lastRunStatus string
+  nextRunAt timestamp
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+WorkflowExecution [color: orange] {
+  id string pk
+  workflowId string
+  userId string
+  trigger string
+  status string
+  createAt timestamp
+  startedAt timestamp
+  completedAt timestamp
+  creditsConsumed int
+}
+
+ExecutionPhase [color: purple] {
+  id string pk
+  userId string
+  status string
+  number int
+  node string
+  name string
+  startedAt timestamp
+  completedAt timestamp
+  inputs string
+  outputs string
+  creditsConsumed int
+  workflowId string
+  workflowExecutionId string
+}
+
+ExecutionLog [color: red] {
+  id string pk
+  userId string
+  executionPhaseId string
+  logLevel string
+  message string
+  timestamp string
+  workflowId string
+  workflowExecutionId string
+}
+
+ClerkUser.id - UserBalance.userId
+ClerkUser.id < UserPurchase.userId
+ClerkUser.id < Credential.userId
+ClerkUser.id < Workflow.userId
+ClerkUser.id < WorkflowExecution.userId
+ClerkUser.id < ExecutionPhase.userId
+ClerkUser.id < ExecutionLog.userId
+Workflow.id < WorkflowExecution.workflowId
+Workflow.id < ExecutionPhase.workflowId
+Workflow.id < ExecutionLog.workflowId
+WorkflowExecution.id < ExecutionPhase.workflowExecutionId
+WorkflowExecution.id < ExecutionLog.workflowExecutionId
+ExecutionPhase.id < ExecutionLog.executionPhaseId
