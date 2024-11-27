@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GetWorkflowsForUser } from "@/actions/workflows/get-workflows-for-user";
+import { getWorkflowsForUser } from "@/actions/workflows/get-workflows-for-user";
 import { auth } from "@clerk/nextjs/server";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, InboxIcon } from "lucide-react";
@@ -37,7 +37,7 @@ function UserWorkflowsSkeleton() {
 
 async function UserWorkflows() {
   const { userId } = auth();
-  const workflows = await GetWorkflowsForUser(userId);
+  const workflows = await getWorkflowsForUser(userId);
   if (!workflows) {
     return (
       <Alert variant="destructive">
@@ -66,6 +66,8 @@ async function UserWorkflows() {
       </div>
     );
   }
+
+  return <div></div>;
 }
 
 export default Page;
