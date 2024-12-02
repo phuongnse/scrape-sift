@@ -5,6 +5,7 @@ import { TaskParam, TaskParamType } from "@/types/task";
 import StringParam from "@/app/workflow/_components/nodes/param/string-param";
 import { useReactFlow } from "@xyflow/react";
 import { AppNode } from "@/types/app-node";
+import BrowserInstanceParam from "@/app/workflow/_components/nodes/param/browser-instance-param";
 
 interface Props {
   param: TaskParam;
@@ -37,6 +38,8 @@ function NodeParamField({ param, nodeId }: Props) {
           updateNodeParamValue={updateNodeParamValue}
         />
       );
+    case TaskParamType.BROWSER_INSTANCE:
+      return <BrowserInstanceParam param={param} />;
     default:
       return (
         <div className="w-full">
