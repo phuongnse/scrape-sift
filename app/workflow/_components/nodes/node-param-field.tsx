@@ -39,7 +39,13 @@ function NodeParamField({ param, nodeId }: Props) {
         />
       );
     case TaskParamType.BROWSER_INSTANCE:
-      return <BrowserInstanceParam param={param} />;
+      return (
+        <BrowserInstanceParam
+          param={param}
+          value={value}
+          updateNodeParamValue={updateNodeParamValue}
+        />
+      );
     default:
       return (
         <div className="w-full">

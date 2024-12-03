@@ -1,8 +1,9 @@
-import { TaskType } from "@/types/task";
 import { launchBrowserTask } from "@/lib/workflow/task/launch-browser";
 import { pageToHtmlTask } from "@/lib/workflow/task/page-to-html";
+import { extractTextFromElementTask } from "@/lib/workflow/task/extract-text-from-element";
 
 export const taskRegistry = {
-  [TaskType.LAUNCH_BROWSER]: launchBrowserTask,
-  [TaskType.PAGE_TO_HTML]: pageToHtmlTask,
+  LAUNCH_BROWSER: launchBrowserTask,
+  PAGE_TO_HTML: pageToHtmlTask,
+  EXTRACT_TEXT_FROM_ELEMENT: extractTextFromElementTask,
 };

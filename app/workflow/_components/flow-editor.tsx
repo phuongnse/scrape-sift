@@ -35,7 +35,7 @@ const fitViewOptions = { padding: 1 };
 function FlowEditor({ workflow }: { workflow: Workflow }) {
   const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
-  const { setViewport, screenToFlowPosition } = useReactFlow();
+  const { setViewport, screenToFlowPosition, updateNodeData } = useReactFlow();
 
   useEffect(() => {
     try {
@@ -55,33 +55,53 @@ function FlowEditor({ workflow }: { workflow: Workflow }) {
       const { x = 0, y = 0, zoom = 1 } = flow.viewport;
       setViewport({ x, y, zoom }).then(() => {});
     } catch {}
-  }, [workflow.definition, setNodes, setEdges]);
+  }, [workflow.definition, setNodes, setEdges, setViewport]);
 
   const onDragOver = useCallback((event: DragEvent) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
   }, []);
 
-  const onDrop = useCallback((event: DragEvent) => {
-    event.preventDefault();
+  const onDrop = useCallback(
+    (event: DragEvent) => {
+      event.preventDefault();
 
-    const taskType = event.dataTransfer.getData("application/reactflow");
-    if (!taskType) {
-      return;
-    }
+      const taskType = event.dataTransfer.getData("application/reactflow");
+      if (!taskType) {
+        return;
+      }
 
-    const position = screenToFlowPosition({
-      x: event.clientX,
-      y: event.clientY,
-    });
+      const position = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
 
-    const newNode = createFlowNode(taskType as TaskType, position);
-    setNodes((nodes) => nodes.concat(newNode));
-  }, []);
+      const newNode = createFlowNode(taskType as TaskType, position);
+      setNodes((nodes) => nodes.concat(newNode));
+    },
+    [screenToFlowPosition, createFlowNode, setNodes],
+  );
 
-  const onConnect = useCallback((connection: Connection) => {
-    setEdges((edges) => addEdge({ ...connection, animated: true }, edges));
-  }, []);
+  const onConnect = useCallback(
+    (connection: Connection) => {
+      setEdges((edges) => addEdge({ ...connection, animated: true }, edges));
+
+      if (!connection.targetHandle) {
+        return;
+      }
+
+      const node = nodes.find((node) => node.id === connection.target);
+
+      if (!node) {
+        return;
+      }
+
+      const nodeInputs = node.data.inputs;
+      delete nodeInputs[connection.targetHandle];
+      updateNodeData(node.id, { inputs: { ...nodeInputs } });
+    },
+    [setEdges, addEdge, nodes, updateNodeData],
+  );
 
   return (
     <main className="h-full w-full">
