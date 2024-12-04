@@ -9,6 +9,7 @@ import {
   Connection,
   Controls,
   Edge,
+  getOutgoers,
   ReactFlow,
   useEdgesState,
   useNodesState,
@@ -20,6 +21,7 @@ import { createFlowNode } from "@/lib/workflow/create-flow-node";
 import { TaskType } from "@/types/task";
 import { AppNode } from "@/types/app-node";
 import DeletableEdge from "@/app/workflow/_components/edges/deletable-edge";
+import { taskRegistry } from "@/lib/workflow/task/registry";
 
 const nodeTypes = {
   SiftScrapeNode: NodeComponent,
@@ -103,6 +105,58 @@ function FlowEditor({ workflow }: { workflow: Workflow }) {
     [setEdges, addEdge, nodes, updateNodeData],
   );
 
+  const isValidConnection = useCallback(
+    (connection: Connection | Edge) => {
+      if (connection.source === connection.target) {
+        return false;
+      }
+
+      const source = nodes.find((node) => node.id === connection.source);
+      const target = nodes.find((node) => node.id === connection.target);
+
+      if (!source || !target) {
+        return false;
+      }
+
+      const sourceTask = taskRegistry[source.data.type];
+      const targetTask = taskRegistry[target.data.type];
+
+      const output = sourceTask.outputs.find(
+        (output) => output.name === connection.sourceHandle,
+      );
+
+      const input = targetTask.inputs.find(
+        (input) => input.name === connection.targetHandle,
+      );
+
+      if (output?.type !== input?.type) {
+        return false;
+      }
+
+      const hasCycle = (node: AppNode, visited = new Set()) => {
+        if (visited.has(node.id)) {
+          return false;
+        }
+
+        visited.add(node.id);
+
+        for (const outgoer of getOutgoers(node, nodes, edges)) {
+          if (outgoer.id === connection.source) {
+            return true;
+          }
+
+          if (hasCycle(outgoer, visited)) {
+            return true;
+          }
+        }
+      };
+
+      const detectedCycle = hasCycle(target);
+      return !detectedCycle;
+    },
+    [nodes, taskRegistry, getOutgoers],
+  );
+
   return (
     <main className="h-full w-full">
       <ReactFlow
@@ -119,6 +173,7 @@ function FlowEditor({ workflow }: { workflow: Workflow }) {
         onDragOver={onDragOver}
         onDrop={onDrop}
         onConnect={onConnect}
+        isValidConnection={isValidConnection}
       >
         <Controls position="top-left" fitViewOptions={fitViewOptions} />
         <Background variant={BackgroundVariant.Dots} gap={12} size={1} />

@@ -10,9 +10,10 @@ import BrowserInstanceParam from "@/app/workflow/_components/nodes/param/browser
 interface Props {
   param: TaskParam;
   nodeId: string;
+  disabled: boolean;
 }
 
-function NodeParamField({ param, nodeId }: Props) {
+function NodeParamField({ param, nodeId, disabled }: Props) {
   const { updateNodeData, getNode } = useReactFlow();
   const node = getNode(nodeId) as AppNode;
   const value = node?.data.inputs[param.name];
@@ -35,6 +36,7 @@ function NodeParamField({ param, nodeId }: Props) {
         <StringParam
           param={param}
           value={value}
+          disabled={disabled}
           updateNodeParamValue={updateNodeParamValue}
         />
       );
@@ -42,8 +44,8 @@ function NodeParamField({ param, nodeId }: Props) {
       return (
         <BrowserInstanceParam
           param={param}
-          value={value}
-          updateNodeParamValue={updateNodeParamValue}
+          value={""}
+          updateNodeParamValue={() => {}}
         />
       );
     default:

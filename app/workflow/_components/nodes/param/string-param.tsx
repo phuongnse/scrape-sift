@@ -6,9 +6,19 @@ import { Input } from "@/components/ui/input";
 import { ParamProps } from "@/types/app-node";
 import { Textarea } from "@/components/ui/textarea";
 
-function StringParam({ param, value, updateNodeParamValue }: ParamProps) {
+function StringParam({
+  param,
+  value,
+  disabled,
+  updateNodeParamValue,
+}: ParamProps) {
   const id = useId();
   const [internalValue, setInternalValue] = useState(value ?? "");
+
+  let Component: any = Input;
+  if (param.variant === "textarea") {
+    Component = Textarea;
+  }
 
   useEffect(() => {
     setInternalValue(value ?? "");
@@ -20,25 +30,15 @@ function StringParam({ param, value, updateNodeParamValue }: ParamProps) {
         {param.name}
         {param.required && <p className="text-red-400 px-2">*</p>}
       </Label>
-      {param.variant === "textarea" ? (
-        <Textarea
-          id={id}
-          value={internalValue}
-          placeholder="Enter value here"
-          className="text-xs"
-          onChange={(e) => setInternalValue(e.target.value)}
-          onBlur={(e) => updateNodeParamValue(e.target.value)}
-        />
-      ) : (
-        <Input
-          id={id}
-          value={internalValue}
-          placeholder="Enter value here"
-          className="text-xs"
-          onChange={(e) => setInternalValue(e.target.value)}
-          onBlur={(e) => updateNodeParamValue(e.target.value)}
-        />
-      )}
+      <Component
+        id={id}
+        value={internalValue}
+        placeholder="Enter value here"
+        disabled={disabled}
+        className="text-xs"
+        onChange={(e: any) => setInternalValue(e.target.value)}
+        onBlur={(e: any) => updateNodeParamValue(e.target.value)}
+      />
       {param.helperText && (
         <p className="text-muted-foreground px-2">{param.helperText}</p>
       )}
