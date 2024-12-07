@@ -3,6 +3,7 @@
 import React, { ReactNode } from "react";
 import { NodeProps, useReactFlow } from "@xyflow/react";
 import { cn } from "@/lib/utils";
+import useFlowValidation from "@/components/hooks/use-flow-validation";
 
 function NodeCard({
   children,
@@ -12,12 +13,17 @@ function NodeCard({
   props: NodeProps;
 }) {
   const { getNode, setCenter } = useReactFlow();
+  const { invalidInputs } = useFlowValidation();
+  const hasInvalidInputs = invalidInputs.some(
+    (node) => node.nodeId === props.id,
+  );
 
   return (
     <div
       className={cn(
         "rounded-md cursor-pointer bg-background border-2 border-separate w-[420px] text-xs gap-1 flex flex-col",
         props.selected && "border-primary",
+        hasInvalidInputs && "border-destructive border-2",
       )}
       onDoubleClick={() => {
         const node = getNode(props.id);
