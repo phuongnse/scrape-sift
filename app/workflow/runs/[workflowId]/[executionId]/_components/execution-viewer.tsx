@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { datesToDurationString } from "@/lib/helper/dates";
 import { getPhasesTotalCost } from "@/lib/helper/phases";
+import { getWorkflowPhaseDetails } from "@/actions/workflows/get-workflow-phase-details";
 
 type ExecutionData = Awaited<ReturnType<typeof getWorkflowExecutionWithPhases>>;
 
@@ -33,6 +34,12 @@ function ExecutionViewer({ initialData }: { initialData: ExecutionData }) {
       query.state.data?.status === WorkflowExecutionStatus.RUNNING
         ? 1000
         : false,
+  });
+
+  const phaseDetails = useQuery({
+    queryKey: ["phaseDetails", selectedPhase],
+    enabled: selectedPhase !== null,
+    queryFn: () => getWorkflowPhaseDetails(selectedPhase!),
   });
 
   const isRunning = query.data?.status === WorkflowExecutionStatus.RUNNING;
@@ -111,6 +118,9 @@ function ExecutionViewer({ initialData }: { initialData: ExecutionData }) {
           </div>
         </div>
       </aside>
+      <div className="flex w-full h-full">
+        <pre>{JSON.stringify(phaseDetails.data, null, 4)}</pre>
+      </div>
     </div>
   );
 }
